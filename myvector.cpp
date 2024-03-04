@@ -1,117 +1,144 @@
 #include <initializer_list>
 
+template <class T>
 class Vector {
-    private: 
-        int* MyArray;
-        size_t size; 
+    T* arr;
+    size_t size;
+    size_t capacity;
 
     public:
 
-        Vector(int size) 
+        Vector()
         {
-            this->size = size;
-            MyArray = new int[size];
-
-            for (size_t i = 0; i != size; ++i ) {
-                MyArray[i] = 0;
-            }
+            capacity = 8;
+            arr = new int[capacity];
+            size = 0;
         }
 
-        Vector(std::initializer_list<int> list) 
-        {
-            this->size = list.size();
-            MyArray = new int[size];
-            size_t i = 0;
+       Vector(int sz)
+       {
+            size = sz;
+            capacity = sz * 2;
+            arr = new int[capacity];
 
-            for (int n : list) 
+            for (size_t i = 0; i <= sz; ++i)
             {
-                MyArray[i++] = n;
+                arr[i] = 0;
             }
+            
+       }
 
-        }
+       Vector(std::initializer_list<T> list)
+       {
+            size = list.size();
+            capacity = list.size() * 2;
+            arr = new int[capacity];
+            
+ 
+            int i = 0;
+            for (int el : list) 
+            {
+                arr[i++] = el;
+            }
+ 
+       }
 
-        int& operator[](int index)
-        {
-            if (index < size && index >= 0) {
-                return MyArray[index];
+       int operator[](int index)
+       {
+            if (index < size && index >= 0)
+            {
+                return arr[index];
+
             } else {
+ 
                 throw std::out_of_range("Index out of scope");
             }
-        }
+       }
 
-        void AddElemToTheEnd(int elem) 
+        void AddElemToTheEnd(T elem)
         {
-            MyArray[size] = elem;
-            ++size; 
-        };
-
-        void DeleteTheLastElem() {
-            int* NewMyArray = new int[size];
-
-            for(size_t i = 0; i < size - 1; ++i) 
-            {
-                NewMyArray[i] = MyArray[i];
-            }
-
-            delete[] MyArray;
-            MyArray = NewMyArray;
-            --size;
-        }
-
-        void InsertElemByIndex(int pos, int elem) 
-        {
-            int* NewMyArray = new int[size + 1];
-
-            for(size_t i = 0; i != pos; ++i) 
-            {
-                NewMyArray[i] = MyArray[i];
-
-            }
-
-            NewMyArray[pos] = elem;
-
-            for(size_t i = pos; i != size; ++i)
-            {
-                NewMyArray[i + 1] = MyArray[i];
-            }
-
-            delete[] MyArray;
-            MyArray = NewMyArray;
             ++size;
-        }
+ 
+            if (size <= capacity)
+            {
+                arr[size - 1] = elem;
+            } else { 
 
-        void DeleteElemByIndex(size_t index) 
+                capacity *= 2;
+                T* newArr = new int[capacity];
+ 
+                for (size_t i = 0; i <= size; ++i) 
+                {
+                    newArr[i] = arr[i];
+                }
+ 
+                newArr[size - 1] = elem;
+                delete[] arr;
+                arr = newArr;
+            }
+
+       }
+
+        void DeleteTheEndElem()
         {
-            int* NewMyArray = new int[size - 1];
-
-            for(size_t i = 0; i != index; ++i)
+            if ( size == 0)
             {
-                NewMyArray[i] = MyArray[i];
+                std::cout << "Array is empty";
+            } else {
+                --size;
+            }
+       }
+
+        void InsertElemByPos(size_t pos, T value)
+        {   
+            ++size;
+
+            if (size >= capacity) {
+                capacity *= 2;
             }
 
-            for(size_t i = index + 1; i < size; ++i) 
-            {
-                NewMyArray[i - 1] = MyArray[i];
-            }
+            T* newArr = new int[capacity]; 
 
-            delete[] MyArray;
-            MyArray = NewMyArray;
-            --size;
+            auto InsertingElement = [&]() { 
+                for (size_t i = 0; i < pos; ++i) {
+                    newArr[i] = arr[i];
+                }
+
+                newArr[pos] = value; 
+
+                for (size_t i = pos; i < size; ++i) {
+                    newArr[i + 1] = arr[i];
+                }
+            };
+            
+            InsertingElement();
+
+            delete[] arr;
+            arr = newArr; 
         }
 
+        
+        size_t v_capacity()
+        {
+            return capacity;
+        }
+ 
+        size_t v_size()
+        {
+            return size;
+        }
 
         void ClearVector() 
-        {
-            int* MyNewArray = new int[0];
+        {   
+            delete[] arr;
 
-            delete[] MyArray;
-            MyArray = MyNewArray;
-
+            capacity = 8;
+            arr = new int[capacity];
+            size = 0;
         }
-
-        ~Vector() 
-        {
-            delete[] MyArray;
-        }
-
+ 
+       ~Vector()
+       {
+            delete[] arr;
+       }
 };
